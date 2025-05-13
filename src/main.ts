@@ -8,19 +8,16 @@ type Person = {
         city: string;
         street: string;
     }
+    education: string
 }
-type KeyValuePair<K, V> = {
-    key: K;
-    value: V;
+type ReadOnlyType<T> = {
+    readonly [K in keyof T]: T[K]
 }
-
-const kvp: KeyValuePair<string, number> = {key: "abc", value: 10}; 
-function findById<T extends {id: number}>(array: T[], id: number):T | undefined {
-  return array.find(item => item.id === id);
+const person1: Person = {
+    id: 123, age: 25, name: "Vasya", education: "Engineer"
 }
-
-//write universal function "findByField" - allows finding either one or several or none objects having
-//a given value of a given field
-function findByField<T>(array: T[], field: keyof T, value: unknown): T[] {
-    return array.filter(item => item[field] === value);
+const person2: ReadOnlyType<Person> = {
+    id: 123, age: 25, name: "Vasya", education: "Doctor"
 }
+person1.age = 26;
+// person2.age = 26;  readonly property -ERROR
