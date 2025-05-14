@@ -1,38 +1,39 @@
-
 type Person = {
-    id: number;
-    name: string;
-    age: number;
-    gender?: string;
-    address?: {
-        city: string;
-        street: string;
-    }
-    education: string
-}
+  id: number;
+  name: string;
+  age: number;
+  gender?: string;
+  address?: {
+    city: string;
+    street: string;
+  };
+  education: string;
+};
 type ReadOnlyType<T> = {
-    readonly [K in keyof T]: T[K]
-}
+  readonly [K in keyof T]: T[K];
+};
 const person1: Person = {
-    id: 123, age: 25, name: "Vasya", education: "Engineer"
-}
+  id: 123,
+  age: 25,
+  name: "Vasya",
+  education: "Engineer",
+};
 const person2: ReadOnlyType<Person> = {
-    id: 123, age: 25, name: "Vasya", education: "Doctor"
-}
+  id: 123,
+  age: 25,
+  name: "Vasya",
+  education: "Doctor",
+};
 person1.age = 26;
 // person2.age = 26;  readonly property - ERROR
 
-
-
-
-// Write universal function "update" that updates (not returns new object but 
+// Write universal function "update" that updates (not returns new object but
 // updates an existing one) any fields of a given any object
 
-function update<T extends object>(object: T, update: Partial<T>) {
-(Object.keys(update) as (keyof T)[]).forEach(key => {
-        object[key] = update[key]!;
-    });
-    
+function update<T>(object: T, update: Partial<T>) {
+  for (let key in update) {
+    object[key] = update[key]!;
+  }
 }
 console.log("Before update:", person1);
 update(person1, { age: 25, name: "Ivan", education: "Doctor" });
@@ -42,34 +43,26 @@ console.log("After 2st update:", person1);
 
 // update(person1, { age: "25", namee: "Ivan", education: "Doctor" }); - ERROR
 
-
-
-// Write the function isAnagram taking two strings and returning true 
+// Write the function isAnagram taking two strings and returning true
 // if the second string is an anagram of the first one
 // Anagram of an string is another string with the same letters and their occurrences as in the first one
 
-function isAnagram(str1: string, str2: string): boolean {
-    let result = true;
 
-    if (str1.length !== str2.length) {
-        result = false;
-    } 
-    const counter: { [key: string]: number } = {};
-    for(const char of str1.toLowerCase()) {
-        counter[char] = (counter[char] || 0) + 1;
-    }
-    for(const char of str2.toLowerCase()) {
-        if (!counter[char]) {
-            result = false;
-        } 
-        counter[char]--;
-        if (counter[char] === 0) {
-            delete counter[char];
-        }
-    }
-    return result
+function getOccurrencesObj(array: (string|number)[]): Record<string|number, number>{
+     return array.reduce((acc: Record<string|number, number>, cur) => ({...acc, [cur]:
+         acc[cur] ? ++acc[cur] : 1}), {})
 }
-console.log(isAnagram("Кот", "кот")); 
-console.log(isAnagram("кот", "ток")); 
-console.log(isAnagram("Кот", "ток")); 
-console.log(isAnagram("кот", "кот")); 
+function isAnagram(str1: string, anagram: string): boolean {
+    let res: boolean = false;
+    str1 = str1.toLowerCase();
+    anagram = anagram.toLowerCase();
+    if (str1.length === anagram.length && str1 !== anagram) {
+        const letterOccurences: Record<string, number> = getOccurrencesObj(Array.from(str1));
+        res = Array.from(anagram).every(letter => --letterOccurences[letter] > -1)
+    }
+    return res;
+}
+console.log(isAnagram("hello", "olleh"))
+console.log(isAnagram("hello", "olllh"))
+console.log(getOccurrencesObj([1,2,3,1,1,1,2]));
+console.log(getOccurrencesObj(["lmn", "lmn"]))
